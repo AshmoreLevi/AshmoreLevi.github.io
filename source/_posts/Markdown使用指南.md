@@ -16,6 +16,22 @@ tags:
 
 ### 利用 Markdown 可以做什么？
 
+#### 数学公式
+
+测试行内 $y = x' \sin \theta + y'\cos \theta$
+
+测试整行
+
+$$\begin{aligned}
+\frac{\partial^{2} \mathrm{f}}{\partial \mathrm{x}^{\prime 2}}=& \frac{\partial^{2} \mathrm{f}}{\partial \mathrm{x}^{2}} \cos ^{2}(\theta)+\frac{\partial}{\partial \mathrm{x}}\left(\frac{\partial \mathrm{f}}{\partial \mathrm{y}}\right) \sin (\theta) \cos (\theta)
++\frac{\partial}{\partial \mathrm{y}}\left(\frac{\partial \mathrm{f}}{\partial \mathrm{x}}\right) \sin (\theta) \cos (\theta)+\frac{\partial^{2} \mathrm{f}}{\partial \mathrm{y}^{2}} \sin ^{2}(\theta)
+\end{aligned}$$
+
+
+#### 插入图片
+
+![](2022-09-26-21-35-26.png)
+
 #### 标题
 
 标题是每篇文章必备而且最常用的格式。

@@ -3,15 +3,15 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: CSjiabin's Blog
-subtitle: To Be A Lean Developer!
-author: JiaBin Huang
-language:
+title: Levi's Blog
+subtitle: august's slipped away
+author: Levi Liang
+language: 
 timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: https://csjiabin.github.io
+url: https://ashmorelevi.github.io
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -19,12 +19,12 @@ permalink_defaults:
 #Custom Setting Start
 
 # Site settings
-SEOTitle: CSjiabin的博客 | CSjiabin's Blog
-header-img: /img/home-bg-o.jpg
-email: qq1187712426@gmail.com
-description: "Goals determine what you going to be!!"
-keyword: "hjb, csjiabin, csjiabin Blog, 黄佳滨的博客, huangjiabin, 黄佳滨, html, css, javascript, js, JavaScript, Node, node, nodejs, h5, html5, 小程序, vue"
-signature: true #show signature
+SEOTitle: Levi的博客 | Levi's Blog
+header-img: /img/home-bg.png
+email: 1069696543@qq.com
+description: description test
+keyword: keyword test
+signature: false #show signature
 signature-img: /img/signature/white.png 
 
 # 自动生成sitemap
@@ -40,25 +40,26 @@ search:
 
 # SNS settings
 # RSS: false
-zhihu_username:     csjiabin
-github_username:    csjiabin
-jianshu_username:   f7f87e65552a
+zhihu_username:     
+github_username:    
+jianshu_username:
 
 # Build settings
 anchorjs: true                          # if you want to customize anchor. check out line:181 of `post.html`
 
 daovoice:
-    enable: true
-    app_id: bdc5c12d
-    email: qq1187712426@gmail.com
+    enable: false
+    app_id: ""
+    email: ""
 
 # Disqus settings
-disqus_username: csjiabin
+
+disqus:
+    enable: false
+    shortname: ""
 
 # Duoshuo settings
-# duoshuo_username: kaijun
-# Share component is depend on Comment so we can NOT use share only.
-duoshuo_share: true                     # set to false if you want to use Comment without Sharing
+duoshuo_share: false                     # set to false if you want to use Comment without Sharing
 
 # Gitalk
 gitalk:
@@ -83,8 +84,9 @@ google_site_verification: Xk9YWz2-rBE9P5__qdWz3nUr4zb9bIDSdANHpezjB04
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
-sidebar-about-description: "Goals determine what you going to be!!"
-sidebar-avatar: https://avatars1.githubusercontent.com/u/20592953?s=460&v=4       # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-about-description: "it'll pass"
+sidebar-avatar: /img/head.jpg
+#sidebar-avatar: https://avatars1.githubusercontent.com/u/20592953?s=460&v=4       # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 # Featured Tags
@@ -98,20 +100,12 @@ service-worker: true
 # Friends
 friends: [
     {
-        title: "CSjiabin's Blog",
-        href: "https://csjiabin.github.io"
-    },{
-        title: "WY",
-        href: "http://zhengwuyang.com"
-    },{
-        title: "简书·csjiabin",
-        href: "https://www.jianshu.com/u/f7f87e65552a"
+        title: "Latex",
+        href: "https://www.latexlive.com/home"
     }
 ]
 
-
 #Custom Setting End
-
 
 
 # Directory
@@ -130,7 +124,7 @@ skip_render:
 new_post_name: :title.md # File name of new posts
 default_layout: post
 titlecase: false # Transform title into titlecase
-external_link: true # Open external links in new tab
+# external_link: true # Open external links in new tab
 filename_case: 0
 render_drafts: false
 post_asset_folder: true
@@ -177,9 +171,31 @@ pagination_dir: page
 ## Themes: https://hexo.io/themes/
 theme: huxblog
 
+# MathJax Support
+# mathjax:
+# enable: true
+# per_page: true
+
+# Math Formulas Render Support
+math:
+  enable: true
+  # Default (true) will load mathjax / katex script on demand.
+  # That is it only render those page which has `mathjax: true` in Front-matter.
+  # If you set it to false, it will load mathjax / katex srcipt EVERY PAGE.
+  per_page: true
+  engine: mathjax
+
+  # hexo-renderer-pandoc (or hexo-renderer-kramed) required for full MathJax support.
+  mathjax:
+    enable: true
+    # See: https://mhchem.github.io/MathJax-mhchem/
+    mhchem: false
+
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: https://github.com/csjiabin/csjiabin.github.io.git
-  branch: master
+  repo: https://github.com/AshmoreLevi/AshmoreLevi.github.io.git
+  branch: main
+
+
