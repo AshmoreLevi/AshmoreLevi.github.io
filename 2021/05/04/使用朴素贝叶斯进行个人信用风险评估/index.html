@@ -1,0 +1,1514 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>使用朴素贝叶斯进行个人信用风险评估 | Levi's Blog</title><meta name="author" content="Levi Liang"><meta name="copyright" content="Levi Liang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="朴素贝叶斯 朴素贝叶斯方法是基于贝叶斯定理的一组有监督学习算法，即“简单”地假设每对特征之间相互独立。 给定一个类别yyy和一个从x1x_1x1​到xnx_nxn​的相关的特征向量，贝叶斯定理阐述了一下关系： P(y∣x1,…,xn)&#x3D;P(y)P(x1,…,xn∣y)P(x1,…,xn)P(y \mid x_1, \dots, x_n) &#x3D; \frac{P(y) P(x_1, \dots, x_n">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用朴素贝叶斯进行个人信用风险评估">
+<meta property="og:url" content="https://ashmorelevi.github.io/2021/05/04/%E4%BD%BF%E7%94%A8%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E8%BF%9B%E8%A1%8C%E4%B8%AA%E4%BA%BA%E4%BF%A1%E7%94%A8%E9%A3%8E%E9%99%A9%E8%AF%84%E4%BC%B0/index.html">
+<meta property="og:site_name" content="Levi&#39;s Blog">
+<meta property="og:description" content="朴素贝叶斯 朴素贝叶斯方法是基于贝叶斯定理的一组有监督学习算法，即“简单”地假设每对特征之间相互独立。 给定一个类别yyy和一个从x1x_1x1​到xnx_nxn​的相关的特征向量，贝叶斯定理阐述了一下关系： P(y∣x1,…,xn)&#x3D;P(y)P(x1,…,xn∣y)P(x1,…,xn)P(y \mid x_1, \dots, x_n) &#x3D; \frac{P(y) P(x_1, \dots, x_n">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ashmorelevi.github.io/img/Taylor/midnights_10.jpg">
+<meta property="article:published_time" content="2021-05-04T11:23:28.000Z">
+<meta property="article:modified_time" content="2022-11-23T11:25:14.447Z">
+<meta property="article:author" content="Levi Liang">
+<meta property="article:tag" content="机器学习">
+<meta property="article:tag" content="朴素贝叶斯">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ashmorelevi.github.io/img/Taylor/midnights_10.jpg"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://ashmorelevi.github.io/2021/05/04/%E4%BD%BF%E7%94%A8%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E8%BF%9B%E8%A1%8C%E4%B8%AA%E4%BA%BA%E4%BF%A1%E7%94%A8%E9%A3%8E%E9%99%A9%E8%AF%84%E4%BC%B0/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '使用朴素贝叶斯进行个人信用风险评估',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-11-23 19:25:14'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.2"></head><body><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/Avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">8</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/gallery/"><i class="fa-fw fa-solid fa-images"></i><span> Gallery</span></a></div><div class="menus_item"><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> Musics</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/About/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/Taylor/midnights_10.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Levi's Blog</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/gallery/"><i class="fa-fw fa-solid fa-images"></i><span> Gallery</span></a></div><div class="menus_item"><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> Musics</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/About/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">使用朴素贝叶斯进行个人信用风险评估</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-05-04T11:23:28.000Z" title="发表于 2021-05-04 19:23:28">2021-05-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-11-23T11:25:14.447Z" title="更新于 2022-11-23 19:25:14">2022-11-23</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">5.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>30分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="使用朴素贝叶斯进行个人信用风险评估"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1>朴素贝叶斯</h1>
+<p>朴素贝叶斯方法是基于贝叶斯定理的一组有监督学习算法，即“简单”地假设每对特征之间相互独立。 给定一个类别<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi></mrow><annotation encoding="application/x-tex">y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span></span>和一个从<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">x_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>到<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">x_n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>的相关的特征向量，贝叶斯定理阐述了一下关系：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>y</mi><mo>∣</mo><msub><mi>x</mi><mn>1</mn></msub><mo separator="true">,</mo><mo>…</mo><mo separator="true">,</mo><msub><mi>x</mi><mi>n</mi></msub><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mi>P</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo separator="true">,</mo><mo>…</mo><mo separator="true">,</mo><msub><mi>x</mi><mi>n</mi></msub><mo>∣</mo><mi>y</mi><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo separator="true">,</mo><mo>…</mo><mo separator="true">,</mo><msub><mi>x</mi><mi>n</mi></msub><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">P(y \mid x_1, \dots, x_n) = \frac{P(y) P(x_1, \dots, x_n \mid y)}{P(x_1, \dots, x_n)}
+
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner">…</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.363em;vertical-align:-0.936em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner">…</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mclose">)</span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner">…</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>使用简单(naive)的假设-每对特征之间都相互独立:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mi mathvariant="normal">∣</mi><mi>y</mi><mo separator="true">,</mo><msub><mi>x</mi><mn>1</mn></msub><mo separator="true">,</mo><mo>…</mo><mo separator="true">,</mo><msub><mi>x</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub><mo separator="true">,</mo><msub><mi>x</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub><mo separator="true">,</mo><mo>…</mo><mo separator="true">,</mo><msub><mi>x</mi><mi>n</mi></msub><mo stretchy="false">)</mo><mo>=</mo><mi>P</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mi mathvariant="normal">∣</mi><mi>y</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">P(x_i | y, x_1, \dots, x_{i-1}, x_{i+1}, \dots, x_n) = P(x_i | y)
+
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∣</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner">…</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner">…</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∣</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mclose">)</span></span></span></span></span></p>
+<p>对于所有的<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span>都成立，这个关系式可以简化为:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>y</mi><mo>∣</mo><msub><mi>x</mi><mn>1</mn></msub><mo separator="true">,</mo><mo>…</mo><mo separator="true">,</mo><msub><mi>x</mi><mi>n</mi></msub><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>P</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>∣</mo><mi>y</mi><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo separator="true">,</mo><mo>…</mo><mo separator="true">,</mo><msub><mi>x</mi><mi>n</mi></msub><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">P(y \mid x_1, \dots, x_n) = \frac{P(y) \prod_{i=1}^{n} P(x_i \mid y)}{P(x_1, \dots, x_n)}
+
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner">…</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.43em;vertical-align:-0.936em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.494em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner">…</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.6897em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∏</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8043em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>由于在给定的输入中<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo separator="true">,</mo><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mo separator="true">,</mo><msub><mi>x</mi><mi>n</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">P(x_1,...,x_n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">...</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>是一个常量，用下面的分类规则:<br>
+\begin{align}\begin{aligned}P(y \mid x_1, \dots, x_n) \propto P(y) \prod_{i=1}^{n} P(x_i \mid y)\ \Rightarrow\ \hat{y} = \arg\max_y P(y) \prod_{i=1}^{n} P(x_i \mid y),\end{aligned}\end{align}<br>
+我们可以用最大后验（MAP）估计来估计<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">P(y)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mclose">)</span></span></span></span>和<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>∣</mo><mi>y</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">P(x_i \mid y)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mclose">)</span></span></span></span>;前者是训练集中类别<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi></mrow><annotation encoding="application/x-tex">y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span></span>的相对频率。<br>
+各种各样的的朴素贝叶斯分类器的差异大部分来自于处理<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>∣</mo><mi>y</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">P(x_i \mid y)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mclose">)</span></span></span></span>分布时的所做的假设不同。<br>
+尽管其假设过于简单，在很多实际情况下，朴素贝叶斯工作得很好，特别是<strong>文档分类</strong>和<strong>垃圾邮件过滤</strong>。这些工作都要求一个小的训练集来估计必需参数。<br>
+相比于其他更复杂的方法，朴素贝叶斯学习器和分类器非常快。分类条件分布的解耦意味着可以独立单独地把每个特征视为一维分布来估计。这样反过来有助于缓解维度灾难带来的问题。<br>
+另一方面，尽管朴素贝叶斯被认为是一种相当不错的分类器，但却不是好的估计器(estimator)，所以不能太过于重视从<code>predict_proba</code>输出的概率。</p>
+<h2 id="高斯朴素贝叶斯">高斯朴素贝叶斯</h2>
+<p><code>GaussianNB</code>实现了运用于分类的高斯朴素贝叶斯算法。特征的可能性(即概率)假设为高斯分布:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>∣</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mn>1</mn><msqrt><mrow><mn>2</mn><mi>π</mi><msubsup><mi>σ</mi><mi>y</mi><mn>2</mn></msubsup></mrow></msqrt></mfrac><mi>exp</mi><mo>⁡</mo><mrow><mo fence="true">(</mo><mo>−</mo><mfrac><mrow><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><msub><mi>μ</mi><mi>y</mi></msub><msup><mo stretchy="false">)</mo><mn>2</mn></msup></mrow><mrow><mn>2</mn><msubsup><mi>σ</mi><mi>y</mi><mn>2</mn></msubsup></mrow></mfrac><mo fence="true">)</mo></mrow></mrow><annotation encoding="application/x-tex">P(x_i \mid y) = \frac{1}{\sqrt{2\pi\sigma^2_y}} \exp\left(-\frac{(x_i - \mu_y)^2}{2\sigma^2_y}\right)
+
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:3.2211em;vertical-align:-1.73em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.11em;"><span class="pstrut" style="height:3.1635em;"></span><span class="mord"><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1635em;"><span class="svg-align" style="top:-3.8em;"><span class="pstrut" style="height:3.8em;"></span><span class="mord" style="padding-left:1em;"><span class="mord">2</span><span class="mord mathnormal" style="margin-right:0.03588em;">π</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">σ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.453em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span></span></span><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3831em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.1235em;"><span class="pstrut" style="height:3.8em;"></span><span class="hide-tail" style="min-width:1.02em;height:1.88em;"><svg xmlns="http://www.w3.org/2000/svg" width='400em' height='1.88em' viewBox='0 0 400000 1944' preserveAspectRatio='xMinYMin slice'><path d='M983 90
+l0 -0
+c4,-6.7,10,-10,18,-10 H400000v40
+H1013.1s-83.4,268,-264.1,840c-180.7,572,-277,876.3,-289,913c-4.7,4.7,-12.7,7,-24,7
+s-12,0,-12,0c-1.3,-3.3,-3.7,-11.7,-7,-25c-35.3,-125.3,-106.7,-373.3,-214,-744
+c-10,12,-21,25,-33,39s-32,39,-32,39c-6,-5.3,-15,-14,-27,-26s25,-30,25,-30
+c26.7,-32.7,52,-63,76,-91s52,-60,52,-60s208,722,208,722
+c56,-175.3,126.3,-397.3,211,-666c84.7,-268.7,153.8,-488.2,207.5,-658.5
+c53.7,-170.3,84.5,-266.8,92.5,-289.5z
+M1001 80h400000v40h-400000z'/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.6765em;"><span></span></span></span></span></span></span></span><span style="top:-3.3935em;"><span class="pstrut" style="height:3.1635em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.8405em;"><span class="pstrut" style="height:3.1635em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.73em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">exp</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord">−</span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.4911em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">σ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.453em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span></span></span><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3831em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.0691em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span></span></span></span></span></p>
+<p>参数 \sigma_y 和 \mu_y 使用最大似然法估计。</p>
+<h2 id="多项分布朴素贝叶斯">多项分布朴素贝叶斯</h2>
+<p><code>MultinomialNB</code>实现了服从多项分布数据的朴素贝叶斯算法，也是用于文本分类(这个领域中数据往往以词向量表示，尽管在实践中<code>tf-idf</code>向量在预测时表现良好)的两大经典朴素贝叶斯算法之一。分布参数由每类<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi></mrow><annotation encoding="application/x-tex">y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span></span>的<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>y</mi></msub><mo>=</mo><mo stretchy="false">(</mo><msub><mi>θ</mi><mrow><mi>y</mi><mn>1</mn></mrow></msub><mo separator="true">,</mo><mo>…</mo><mo separator="true">,</mo><msub><mi>θ</mi><mrow><mi>y</mi><mi>n</mi></mrow></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\theta_y=(\theta_{y1},\ldots,\theta_{yn})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9805em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner">…</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span><span class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>向量决定， 式中<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span>是特征的数量(对于文本分类，是词汇量的大小)<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mrow><mi>y</mi><mi>i</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\theta_{yi}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9805em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span>是样本中属于类&amp;y&amp;中特征&amp;i&amp;概率&amp;P(x_i \mid y)&amp;。<br>
+参数&amp;\theta_y&amp;使用平滑过的最大似然估计法来估计，即相对频率计数:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mover accent="true"><mi>θ</mi><mo>^</mo></mover><mrow><mi>y</mi><mi>i</mi></mrow></msub><mo>=</mo><mfrac><mrow><msub><mi>N</mi><mrow><mi>y</mi><mi>i</mi></mrow></msub><mo>+</mo><mi>α</mi></mrow><mrow><msub><mi>N</mi><mi>y</mi></msub><mo>+</mo><mi>α</mi><mi>n</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">\hat{\theta}_{yi} = \frac{ N_{yi} + \alpha}{N_y + \alpha n}
+
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.244em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9579em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span></span><span style="top:-3.2634em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1667em;"><span class="mord">^</span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.3324em;vertical-align:-0.9721em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mord mathnormal">n</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9721em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>式中<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mrow><mi>y</mi><mi>i</mi></mrow></msub><mo>=</mo><msub><mo>∑</mo><mrow><mi>x</mi><mo>∈</mo><mi>T</mi></mrow></msub><msub><mi>x</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">N_{yi}=\sum_{x \in T}x_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0771em;vertical-align:-0.3271em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1786em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">x</span><span class="mrel mtight">∈</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3271em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>是训练集T中特征<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span>在类<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi></mrow><annotation encoding="application/x-tex">y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span></span>中出现的次数，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>y</mi></msub><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi mathvariant="normal">∣</mi><mi>T</mi><mi mathvariant="normal">∣</mi></mrow></msubsup><msub><mi>N</mi><mrow><mi>y</mi><mi>i</mi></mrow></msub></mrow><annotation encoding="application/x-tex">N_y=\sum_{i=1}^{|T|}N_{yi}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.3276em;vertical-align:-0.2997em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0279em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="mord mtight">∣</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span>是类<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi></mrow><annotation encoding="application/x-tex">y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span></span>中出现所有特征的计数总和。</p>
+<p>先验平滑因子<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\alpha \ge 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span>为在学习样本中没有出现的特征而设计，以防在将来的计算中出现0概率输出。<br>
+把$\alpha = 1 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>被称为拉普拉斯平滑</mtext><mo stretchy="false">(</mo><mi>L</mi><mi>a</mi><mi>p</mi><mi>a</mi><mi>l</mi><mi>c</mi><mi>e</mi><mi>s</mi><mi>m</mi><mi>o</mi><mi>o</mi><mi>t</mi><mi>h</mi><mi>i</mi><mi>n</mi><mi>g</mi><mo stretchy="false">)</mo><mtext>，而</mtext></mrow><annotation encoding="application/x-tex">被称为拉普拉斯平滑(Lapalce smoothing)，而</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord cjk_fallback">被称为拉普拉斯平滑</span><span class="mopen">(</span><span class="mord mathnormal">L</span><span class="mord mathnormal">a</span><span class="mord mathnormal">p</span><span class="mord mathnormal">a</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">ces</span><span class="mord mathnormal">m</span><span class="mord mathnormal">oo</span><span class="mord mathnormal">t</span><span class="mord mathnormal">hin</span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mclose">)</span><span class="mord cjk_fallback">，而</span></span></span></span>\alpha &lt; 1$被称为Lidstone平滑方法(Lidstone smoothing)。</p>
+<h2 id="伯努利朴素贝叶斯">伯努利朴素贝叶斯</h2>
+<p><code>BernoulliNB</code>实现了用于多重伯努利分布数据的朴素贝叶斯训练和分类算法，即有多个特征，但每个特征都假设是一个二元(Bernoulli, boolean)变量。因此，这类算法要求样本以二元值特征向量表示；如果样本含有其他类型的数据,一个<code>BernoulliNB</code>实例会将其二值化(取决于<code>binarize</code>参数)。</p>
+<p>伯努利朴素贝叶斯的决策规则基于:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>∣</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mi>P</mi><mo stretchy="false">(</mo><mi>i</mi><mo>∣</mo><mi>y</mi><mo stretchy="false">)</mo><msub><mi>x</mi><mi>i</mi></msub><mo>+</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mi>i</mi><mo>∣</mo><mi>y</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">P(x_i \mid y) = P(i \mid y) x_i + (1 - P(i \mid y)) (1 - x_i)
+
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mclose">)</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mclose">))</span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></p>
+<p>与多项分布朴素贝叶斯的规则不同 伯努利朴素贝叶斯明确地惩罚类<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi></mrow><annotation encoding="application/x-tex">y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span></span>中没有出现作为预测因子的特征<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span>，而多项分布分布朴素贝叶斯只是简单地忽略没出现的特征。</p>
+<p>在文本分类的示例中，统计词语是否出现的向量(word occurrence vectors)(而非统计词语出现次数的向量(word count vectors))可以用于训练和使用这个分类器。<code>BernoulliNB</code>可能在一些数据集上表现得更好，特别是那些更短的文档。</p>
+<h1>使用朴素贝叶斯进行个人信用风险评估</h1>
+<h2 id="数据源与查看数据">数据源与查看数据</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line">credit = pd.read_csv(<span class="string">&quot;./input/credit.csv&quot;</span>)</span><br><span class="line">credit.head(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<p>.dataframe tbody tr th {<br>
+vertical-align: top;<br>
+}</p>
+<p>.dataframe thead th {<br>
+text-align: right;<br>
+}<br>
+</style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>checking_balance</th>
+      <th>months_loan_duration</th>
+      <th>credit_history</th>
+      <th>purpose</th>
+      <th>amount</th>
+      <th>savings_balance</th>
+      <th>employment_length</th>
+      <th>installment_rate</th>
+      <th>personal_status</th>
+      <th>other_debtors</th>
+      <th>...</th>
+      <th>property</th>
+      <th>age</th>
+      <th>installment_plan</th>
+      <th>housing</th>
+      <th>existing_credits</th>
+      <th>job</th>
+      <th>dependents</th>
+      <th>telephone</th>
+      <th>foreign_worker</th>
+      <th>default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>< 0 DM</td>
+      <td>6</td>
+      <td>critical</td>
+      <td>radio/tv</td>
+      <td>1169</td>
+      <td>unknown</td>
+      <td>> 7 yrs</td>
+      <td>4</td>
+      <td>single male</td>
+      <td>none</td>
+      <td>...</td>
+      <td>real estate</td>
+      <td>67</td>
+      <td>none</td>
+      <td>own</td>
+      <td>2</td>
+      <td>skilled employee</td>
+      <td>1</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1 - 200 DM</td>
+      <td>48</td>
+      <td>repaid</td>
+      <td>radio/tv</td>
+      <td>5951</td>
+      <td>< 100 DM</td>
+      <td>1 - 4 yrs</td>
+      <td>2</td>
+      <td>female</td>
+      <td>none</td>
+      <td>...</td>
+      <td>real estate</td>
+      <td>22</td>
+      <td>none</td>
+      <td>own</td>
+      <td>1</td>
+      <td>skilled employee</td>
+      <td>1</td>
+      <td>none</td>
+      <td>yes</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>unknown</td>
+      <td>12</td>
+      <td>critical</td>
+      <td>education</td>
+      <td>2096</td>
+      <td>< 100 DM</td>
+      <td>4 - 7 yrs</td>
+      <td>2</td>
+      <td>single male</td>
+      <td>none</td>
+      <td>...</td>
+      <td>real estate</td>
+      <td>49</td>
+      <td>none</td>
+      <td>own</td>
+      <td>1</td>
+      <td>unskilled resident</td>
+      <td>2</td>
+      <td>none</td>
+      <td>yes</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>< 0 DM</td>
+      <td>42</td>
+      <td>repaid</td>
+      <td>furniture</td>
+      <td>7882</td>
+      <td>< 100 DM</td>
+      <td>4 - 7 yrs</td>
+      <td>2</td>
+      <td>single male</td>
+      <td>guarantor</td>
+      <td>...</td>
+      <td>building society savings</td>
+      <td>45</td>
+      <td>none</td>
+      <td>for free</td>
+      <td>1</td>
+      <td>skilled employee</td>
+      <td>2</td>
+      <td>none</td>
+      <td>yes</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>< 0 DM</td>
+      <td>24</td>
+      <td>delayed</td>
+      <td>car (new)</td>
+      <td>4870</td>
+      <td>< 100 DM</td>
+      <td>1 - 4 yrs</td>
+      <td>3</td>
+      <td>single male</td>
+      <td>none</td>
+      <td>...</td>
+      <td>unknown/none</td>
+      <td>53</td>
+      <td>none</td>
+      <td>for free</td>
+      <td>2</td>
+      <td>skilled employee</td>
+      <td>2</td>
+      <td>none</td>
+      <td>yes</td>
+      <td>2</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 21 columns</p>
+</div>
+<h2 id="数据预处理">数据预处理</h2>
+<p><code>checking_balance</code>,<code>credit_history</code>,<code>purpose</code>,<code>savings_balance</code>,<code>employment_length</code>,<code>personal_status</code>,<code>other_debtors</code>,<code>property</code>,<code>installment_plan</code>,<code>housing,job</code>,<code>telephone</code>,<code>foreign_worker</code>为字符串类型形式的变量，需要预处理使用整数进行编码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">col_dicts = &#123;&#125;</span><br><span class="line">cols = [<span class="string">&#x27;checking_balance&#x27;</span>,<span class="string">&#x27;credit_history&#x27;</span>, <span class="string">&#x27;purpose&#x27;</span>, <span class="string">&#x27;savings_balance&#x27;</span>, <span class="string">&#x27;employment_length&#x27;</span>, <span class="string">&#x27;personal_status&#x27;</span>, </span><br><span class="line">        <span class="string">&#x27;other_debtors&#x27;</span>,<span class="string">&#x27;property&#x27;</span>,<span class="string">&#x27;installment_plan&#x27;</span>,<span class="string">&#x27;housing&#x27;</span>,<span class="string">&#x27;job&#x27;</span>,<span class="string">&#x27;telephone&#x27;</span>,<span class="string">&#x27;foreign_worker&#x27;</span>]</span><br><span class="line"></span><br><span class="line">col_dicts = &#123;<span class="string">&#x27;checking_balance&#x27;</span>: &#123;<span class="string">&#x27;unknown&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">                                  <span class="string">&#x27;&lt; 0 DM&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">                                  <span class="string">&#x27;1 - 200 DM&#x27;</span>: <span class="number">2</span>,</span><br><span class="line">                                  <span class="string">&#x27;&gt; 200 DM&#x27;</span>: <span class="number">3</span></span><br><span class="line">                                 &#125;,</span><br><span class="line"> <span class="string">&#x27;credit_history&#x27;</span>: &#123;<span class="string">&#x27;critical&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">                    <span class="string">&#x27;repaid&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">                    <span class="string">&#x27;delayed&#x27;</span>: <span class="number">2</span>,</span><br><span class="line">                    <span class="string">&#x27;fully repaid&#x27;</span>: <span class="number">3</span>,</span><br><span class="line">                    <span class="string">&#x27;fully repaid this bank&#x27;</span>: <span class="number">4</span></span><br><span class="line">                   &#125;,</span><br><span class="line"> <span class="string">&#x27;employment_length&#x27;</span>: &#123;<span class="string">&#x27;unemployed&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">                       <span class="string">&#x27;0 - 1 yrs&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">                       <span class="string">&#x27;1 - 4 yrs&#x27;</span>: <span class="number">2</span>,</span><br><span class="line">                       <span class="string">&#x27;4 - 7 yrs&#x27;</span>: <span class="number">3</span>,</span><br><span class="line">                       <span class="string">&#x27;&gt; 7 yrs&#x27;</span>: <span class="number">4</span></span><br><span class="line">                      &#125;,</span><br><span class="line"> <span class="string">&#x27;foreign_worker&#x27;</span>: &#123;<span class="string">&#x27;yes&#x27;</span>: <span class="number">0</span> ,<span class="string">&#x27;no&#x27;</span>: <span class="number">1</span>&#125;,</span><br><span class="line"> <span class="string">&#x27;housing&#x27;</span>: &#123;<span class="string">&#x27;own&#x27;</span>: <span class="number">0</span>, <span class="string">&#x27;for free&#x27;</span>: <span class="number">1</span>,  <span class="string">&#x27;rent&#x27;</span>: <span class="number">2</span>&#125;,</span><br><span class="line"> <span class="string">&#x27;installment_plan&#x27;</span>: &#123;<span class="string">&#x27;none&#x27;</span>: <span class="number">0</span>, <span class="string">&#x27;bank&#x27;</span>: <span class="number">1</span>, <span class="string">&#x27;stores&#x27;</span>: <span class="number">2</span>&#125;,</span><br><span class="line"> <span class="string">&#x27;job&#x27;</span>: &#123;<span class="string">&#x27;unemployed non-resident&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">         <span class="string">&#x27;unskilled resident&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">         <span class="string">&#x27;skilled employee&#x27;</span>: <span class="number">2</span>,</span><br><span class="line">         <span class="string">&#x27;mangement self-employed&#x27;</span>: <span class="number">3</span></span><br><span class="line">        &#125;,</span><br><span class="line"> <span class="string">&#x27;other_debtors&#x27;</span>: &#123;<span class="string">&#x27;none&#x27;</span>: <span class="number">0</span>, </span><br><span class="line">                   <span class="string">&#x27;guarantor&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">                   <span class="string">&#x27;co-applicant&#x27;</span>: <span class="number">2</span> &#125;,</span><br><span class="line"> <span class="string">&#x27;personal_status&#x27;</span>: &#123;<span class="string">&#x27;single male&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">                     <span class="string">&#x27;female&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">                     <span class="string">&#x27;divorced male&#x27;</span>: <span class="number">2</span>,</span><br><span class="line">                     <span class="string">&#x27;married male&#x27;</span>: <span class="number">3</span></span><br><span class="line">                    &#125;,</span><br><span class="line"> <span class="string">&#x27;property&#x27;</span>: &#123;<span class="string">&#x27;real estate&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">              <span class="string">&#x27;building society savings&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">               <span class="string">&#x27;unknown/none&#x27;</span>: <span class="number">2</span>,</span><br><span class="line">              <span class="string">&#x27;other&#x27;</span>: <span class="number">3</span></span><br><span class="line">             &#125;,</span><br><span class="line"> <span class="string">&#x27;purpose&#x27;</span>: &#123;<span class="string">&#x27;radio/tv&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">             <span class="string">&#x27;education&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">             <span class="string">&#x27;furniture&#x27;</span>: <span class="number">2</span>,</span><br><span class="line">             <span class="string">&#x27;car (new)&#x27;</span>: <span class="number">3</span>,</span><br><span class="line">             <span class="string">&#x27;car (used)&#x27;</span>: <span class="number">4</span>,</span><br><span class="line">             <span class="string">&#x27;business&#x27;</span>: <span class="number">5</span>,</span><br><span class="line">             <span class="string">&#x27;domestic appliances&#x27;</span>: <span class="number">6</span>,</span><br><span class="line">             <span class="string">&#x27;repairs&#x27;</span>: <span class="number">7</span>,</span><br><span class="line">             <span class="string">&#x27;others&#x27;</span>: <span class="number">8</span>,</span><br><span class="line">             <span class="string">&#x27;retraining&#x27;</span>: <span class="number">9</span>&#125;,</span><br><span class="line"> <span class="string">&#x27;savings_balance&#x27;</span>: &#123;<span class="string">&#x27;unknown&#x27;</span>: <span class="number">0</span>,</span><br><span class="line">                     <span class="string">&#x27;&lt; 100 DM&#x27;</span>: <span class="number">1</span>,</span><br><span class="line">                     <span class="string">&#x27;101 - 500 DM&#x27;</span>: <span class="number">2</span>,</span><br><span class="line">                     <span class="string">&#x27;501 - 1000 DM&#x27;</span>: <span class="number">3</span>,</span><br><span class="line">                     <span class="string">&#x27;&gt; 1000 DM&#x27;</span>: <span class="number">4</span></span><br><span class="line">                    &#125;,</span><br><span class="line"> <span class="string">&#x27;telephone&#x27;</span>: &#123;<span class="string">&#x27;none&#x27;</span>: <span class="number">1</span>, <span class="string">&#x27;yes&#x27;</span>: <span class="number">0</span>&#125;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> col <span class="keyword">in</span> cols:</span><br><span class="line">    credit[col] = credit[col].<span class="built_in">map</span>(col_dicts[col])</span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">credit.head(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<p>.dataframe tbody tr th {<br>
+vertical-align: top;<br>
+}</p>
+<p>.dataframe thead th {<br>
+text-align: right;<br>
+}<br>
+</style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>checking_balance</th>
+      <th>months_loan_duration</th>
+      <th>credit_history</th>
+      <th>purpose</th>
+      <th>amount</th>
+      <th>savings_balance</th>
+      <th>employment_length</th>
+      <th>installment_rate</th>
+      <th>personal_status</th>
+      <th>other_debtors</th>
+      <th>...</th>
+      <th>property</th>
+      <th>age</th>
+      <th>installment_plan</th>
+      <th>housing</th>
+      <th>existing_credits</th>
+      <th>job</th>
+      <th>dependents</th>
+      <th>telephone</th>
+      <th>foreign_worker</th>
+      <th>default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>6</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1169</td>
+      <td>0</td>
+      <td>4</td>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0</td>
+      <td>67</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>48</td>
+      <td>1</td>
+      <td>0</td>
+      <td>5951</td>
+      <td>1</td>
+      <td>2</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>12</td>
+      <td>0</td>
+      <td>1</td>
+      <td>2096</td>
+      <td>1</td>
+      <td>3</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0</td>
+      <td>49</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>42</td>
+      <td>1</td>
+      <td>2</td>
+      <td>7882</td>
+      <td>1</td>
+      <td>3</td>
+      <td>2</td>
+      <td>0</td>
+      <td>1</td>
+      <td>...</td>
+      <td>1</td>
+      <td>45</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>2</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>24</td>
+      <td>2</td>
+      <td>3</td>
+      <td>4870</td>
+      <td>1</td>
+      <td>2</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>...</td>
+      <td>2</td>
+      <td>53</td>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>2</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 21 columns</p>
+</div>
+<h2 id="特征分析">特征分析</h2>
+<p>获取特征的相关性矩阵，可以查看各变量之间的依赖关系。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">corrmat=credit.corr()<span class="comment">#获取相关性矩阵</span></span><br><span class="line">corrmat</span><br></pre></td></tr></table></figure>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<p>.dataframe tbody tr th {<br>
+vertical-align: top;<br>
+}</p>
+<p>.dataframe thead th {<br>
+text-align: right;<br>
+}<br>
+</style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>checking_balance</th>
+      <th>months_loan_duration</th>
+      <th>credit_history</th>
+      <th>purpose</th>
+      <th>amount</th>
+      <th>savings_balance</th>
+      <th>employment_length</th>
+      <th>installment_rate</th>
+      <th>personal_status</th>
+      <th>other_debtors</th>
+      <th>...</th>
+      <th>property</th>
+      <th>age</th>
+      <th>installment_plan</th>
+      <th>housing</th>
+      <th>existing_credits</th>
+      <th>job</th>
+      <th>dependents</th>
+      <th>telephone</th>
+      <th>foreign_worker</th>
+      <th>default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>checking_balance</th>
+      <td>1.000000</td>
+      <td>0.035050</td>
+      <td>0.138210</td>
+      <td>0.017272</td>
+      <td>0.024561</td>
+      <td>-0.005614</td>
+      <td>-0.108536</td>
+      <td>-0.057942</td>
+      <td>0.069946</td>
+      <td>0.041970</td>
+      <td>...</td>
+      <td>-0.005623</td>
+      <td>-0.049058</td>
+      <td>0.033566</td>
+      <td>0.032925</td>
+      <td>-0.093081</td>
+      <td>-0.054255</td>
+      <td>-0.040889</td>
+      <td>0.039209</td>
+      <td>-0.000205</td>
+      <td>0.197788</td>
+    </tr>
+    <tr>
+      <th>months_loan_duration</th>
+      <td>0.035050</td>
+      <td>1.000000</td>
+      <td>0.142631</td>
+      <td>0.105305</td>
+      <td>0.624984</td>
+      <td>-0.064526</td>
+      <td>0.057381</td>
+      <td>0.074749</td>
+      <td>-0.116029</td>
+      <td>0.006711</td>
+      <td>...</td>
+      <td>0.245655</td>
+      <td>-0.036136</td>
+      <td>0.076992</td>
+      <td>0.011950</td>
+      <td>-0.011284</td>
+      <td>0.210910</td>
+      <td>-0.023834</td>
+      <td>-0.164718</td>
+      <td>-0.138196</td>
+      <td>0.214927</td>
+    </tr>
+    <tr>
+      <th>credit_history</th>
+      <td>0.138210</td>
+      <td>0.142631</td>
+      <td>1.000000</td>
+      <td>0.143938</td>
+      <td>0.113776</td>
+      <td>0.019657</td>
+      <td>-0.097325</td>
+      <td>-0.024740</td>
+      <td>-0.005519</td>
+      <td>-0.008955</td>
+      <td>...</td>
+      <td>0.071606</td>
+      <td>-0.070046</td>
+      <td>0.239431</td>
+      <td>0.077417</td>
+      <td>-0.207960</td>
+      <td>0.001718</td>
+      <td>0.051849</td>
+      <td>0.018283</td>
+      <td>-0.041784</td>
+      <td>0.232157</td>
+    </tr>
+    <tr>
+      <th>purpose</th>
+      <td>0.017272</td>
+      <td>0.105305</td>
+      <td>0.143938</td>
+      <td>1.000000</td>
+      <td>0.203234</td>
+      <td>0.005263</td>
+      <td>-0.052126</td>
+      <td>-0.092747</td>
+      <td>-0.035918</td>
+      <td>-0.020423</td>
+      <td>...</td>
+      <td>0.027161</td>
+      <td>0.066020</td>
+      <td>0.049489</td>
+      <td>0.028464</td>
+      <td>0.071995</td>
+      <td>0.025409</td>
+      <td>0.077245</td>
+      <td>-0.116031</td>
+      <td>0.035655</td>
+      <td>0.051311</td>
+    </tr>
+    <tr>
+      <th>amount</th>
+      <td>0.024561</td>
+      <td>0.624984</td>
+      <td>0.113776</td>
+      <td>0.203234</td>
+      <td>1.000000</td>
+      <td>-0.107538</td>
+      <td>-0.008367</td>
+      <td>-0.271316</td>
+      <td>-0.159434</td>
+      <td>0.037921</td>
+      <td>...</td>
+      <td>0.224550</td>
+      <td>0.032716</td>
+      <td>0.045815</td>
+      <td>0.056119</td>
+      <td>0.020795</td>
+      <td>0.285385</td>
+      <td>0.017142</td>
+      <td>-0.276995</td>
+      <td>-0.050050</td>
+      <td>0.154739</td>
+    </tr>
+    <tr>
+      <th>savings_balance</th>
+      <td>-0.005614</td>
+      <td>-0.064526</td>
+      <td>0.019657</td>
+      <td>0.005263</td>
+      <td>-0.107538</td>
+      <td>1.000000</td>
+      <td>0.014600</td>
+      <td>-0.000805</td>
+      <td>0.062953</td>
+      <td>-0.047575</td>
+      <td>...</td>
+      <td>-0.004121</td>
+      <td>-0.017997</td>
+      <td>0.009373</td>
+      <td>0.003268</td>
+      <td>-0.004176</td>
+      <td>-0.040803</td>
+      <td>-0.021302</td>
+      <td>0.037452</td>
+      <td>0.005318</td>
+      <td>-0.033871</td>
+    </tr>
+    <tr>
+      <th>employment_length</th>
+      <td>-0.108536</td>
+      <td>0.057381</td>
+      <td>-0.097325</td>
+      <td>-0.052126</td>
+      <td>-0.008367</td>
+      <td>0.014600</td>
+      <td>1.000000</td>
+      <td>0.126161</td>
+      <td>-0.181745</td>
+      <td>-0.028758</td>
+      <td>...</td>
+      <td>0.065533</td>
+      <td>0.256227</td>
+      <td>-0.008676</td>
+      <td>-0.044583</td>
+      <td>0.125791</td>
+      <td>0.101225</td>
+      <td>0.097192</td>
+      <td>-0.060518</td>
+      <td>-0.027232</td>
+      <td>-0.116002</td>
+    </tr>
+    <tr>
+      <th>installment_rate</th>
+      <td>-0.057942</td>
+      <td>0.074749</td>
+      <td>-0.024740</td>
+      <td>-0.092747</td>
+      <td>-0.271316</td>
+      <td>-0.000805</td>
+      <td>0.126161</td>
+      <td>1.000000</td>
+      <td>-0.081121</td>
+      <td>-0.014835</td>
+      <td>...</td>
+      <td>0.039353</td>
+      <td>0.058266</td>
+      <td>0.034750</td>
+      <td>-0.073955</td>
+      <td>0.021669</td>
+      <td>0.097755</td>
+      <td>-0.071207</td>
+      <td>-0.014413</td>
+      <td>-0.090024</td>
+      <td>0.072404</td>
+    </tr>
+    <tr>
+      <th>personal_status</th>
+      <td>0.069946</td>
+      <td>-0.116029</td>
+      <td>-0.005519</td>
+      <td>-0.035918</td>
+      <td>-0.159434</td>
+      <td>0.062953</td>
+      <td>-0.181745</td>
+      <td>-0.081121</td>
+      <td>1.000000</td>
+      <td>-0.011880</td>
+      <td>...</td>
+      <td>-0.099575</td>
+      <td>-0.186563</td>
+      <td>-0.065461</td>
+      <td>0.083146</td>
+      <td>-0.089640</td>
+      <td>-0.064335</td>
+      <td>-0.238327</td>
+      <td>0.057207</td>
+      <td>0.009204</td>
+      <td>0.042643</td>
+    </tr>
+    <tr>
+      <th>other_debtors</th>
+      <td>0.041970</td>
+      <td>0.006711</td>
+      <td>-0.008955</td>
+      <td>-0.020423</td>
+      <td>0.037921</td>
+      <td>-0.047575</td>
+      <td>-0.028758</td>
+      <td>-0.014835</td>
+      <td>-0.011880</td>
+      <td>1.000000</td>
+      <td>...</td>
+      <td>-0.101378</td>
+      <td>-0.028294</td>
+      <td>-0.000955</td>
+      <td>0.036219</td>
+      <td>-0.017662</td>
+      <td>-0.021106</td>
+      <td>-0.010990</td>
+      <td>0.050996</td>
+      <td>0.107639</td>
+      <td>0.028441</td>
+    </tr>
+    <tr>
+      <th>residence_history</th>
+      <td>-0.059555</td>
+      <td>0.034067</td>
+      <td>-0.027989</td>
+      <td>0.073651</td>
+      <td>0.028926</td>
+      <td>-0.011772</td>
+      <td>0.245081</td>
+      <td>0.049302</td>
+      <td>-0.106742</td>
+      <td>-0.012690</td>
+      <td>...</td>
+      <td>0.055260</td>
+      <td>0.266419</td>
+      <td>-0.034517</td>
+      <td>0.255106</td>
+      <td>0.089625</td>
+      <td>0.012655</td>
+      <td>0.042643</td>
+      <td>-0.095359</td>
+      <td>-0.054097</td>
+      <td>0.002967</td>
+    </tr>
+    <tr>
+      <th>property</th>
+      <td>-0.005623</td>
+      <td>0.245655</td>
+      <td>0.071606</td>
+      <td>0.027161</td>
+      <td>0.224550</td>
+      <td>-0.004121</td>
+      <td>0.065533</td>
+      <td>0.039353</td>
+      <td>-0.099575</td>
+      <td>-0.101378</td>
+      <td>...</td>
+      <td>1.000000</td>
+      <td>-0.054186</td>
+      <td>0.041147</td>
+      <td>0.022420</td>
+      <td>0.001209</td>
+      <td>0.244946</td>
+      <td>-0.041111</td>
+      <td>-0.155051</td>
+      <td>-0.138772</td>
+      <td>0.090146</td>
+    </tr>
+    <tr>
+      <th>age</th>
+      <td>-0.049058</td>
+      <td>-0.036136</td>
+      <td>-0.070046</td>
+      <td>0.066020</td>
+      <td>0.032716</td>
+      <td>-0.017997</td>
+      <td>0.256227</td>
+      <td>0.058266</td>
+      <td>-0.186563</td>
+      <td>-0.028294</td>
+      <td>...</td>
+      <td>-0.054186</td>
+      <td>1.000000</td>
+      <td>0.021858</td>
+      <td>-0.108437</td>
+      <td>0.149254</td>
+      <td>0.015673</td>
+      <td>0.118201</td>
+      <td>-0.145259</td>
+      <td>-0.006151</td>
+      <td>-0.091127</td>
+    </tr>
+    <tr>
+      <th>installment_plan</th>
+      <td>0.033566</td>
+      <td>0.076992</td>
+      <td>0.239431</td>
+      <td>0.049489</td>
+      <td>0.045815</td>
+      <td>0.009373</td>
+      <td>-0.008676</td>
+      <td>0.034750</td>
+      <td>-0.065461</td>
+      <td>-0.000955</td>
+      <td>...</td>
+      <td>0.041147</td>
+      <td>0.021858</td>
+      <td>1.000000</td>
+      <td>-0.077624</td>
+      <td>0.046993</td>
+      <td>0.009872</td>
+      <td>0.057595</td>
+      <td>-0.030704</td>
+      <td>-0.036734</td>
+      <td>0.104885</td>
+    </tr>
+    <tr>
+      <th>housing</th>
+      <td>0.032925</td>
+      <td>0.011950</td>
+      <td>0.077417</td>
+      <td>0.028464</td>
+      <td>0.056119</td>
+      <td>0.003268</td>
+      <td>-0.044583</td>
+      <td>-0.073955</td>
+      <td>0.083146</td>
+      <td>0.036219</td>
+      <td>...</td>
+      <td>0.022420</td>
+      <td>-0.108437</td>
+      <td>-0.077624</td>
+      <td>1.000000</td>
+      <td>-0.052609</td>
+      <td>0.015201</td>
+      <td>-0.015004</td>
+      <td>0.003307</td>
+      <td>0.005155</td>
+      <td>0.123815</td>
+    </tr>
+    <tr>
+      <th>existing_credits</th>
+      <td>-0.093081</td>
+      <td>-0.011284</td>
+      <td>-0.207960</td>
+      <td>0.071995</td>
+      <td>0.020795</td>
+      <td>-0.004176</td>
+      <td>0.125791</td>
+      <td>0.021669</td>
+      <td>-0.089640</td>
+      <td>-0.017662</td>
+      <td>...</td>
+      <td>0.001209</td>
+      <td>0.149254</td>
+      <td>0.046993</td>
+      <td>-0.052609</td>
+      <td>1.000000</td>
+      <td>-0.026321</td>
+      <td>0.109667</td>
+      <td>-0.065553</td>
+      <td>-0.009717</td>
+      <td>-0.045732</td>
+    </tr>
+    <tr>
+      <th>job</th>
+      <td>-0.054255</td>
+      <td>0.210910</td>
+      <td>0.001718</td>
+      <td>0.025409</td>
+      <td>0.285385</td>
+      <td>-0.040803</td>
+      <td>0.101225</td>
+      <td>0.097755</td>
+      <td>-0.064335</td>
+      <td>-0.021106</td>
+      <td>...</td>
+      <td>0.244946</td>
+      <td>0.015673</td>
+      <td>0.009872</td>
+      <td>0.015201</td>
+      <td>-0.026321</td>
+      <td>1.000000</td>
+      <td>-0.093559</td>
+      <td>-0.383022</td>
+      <td>-0.100944</td>
+      <td>0.032735</td>
+    </tr>
+    <tr>
+      <th>dependents</th>
+      <td>-0.040889</td>
+      <td>-0.023834</td>
+      <td>0.051849</td>
+      <td>0.077245</td>
+      <td>0.017142</td>
+      <td>-0.021302</td>
+      <td>0.097192</td>
+      <td>-0.071207</td>
+      <td>-0.238327</td>
+      <td>-0.010990</td>
+      <td>...</td>
+      <td>-0.041111</td>
+      <td>0.118201</td>
+      <td>0.057595</td>
+      <td>-0.015004</td>
+      <td>0.109667</td>
+      <td>-0.093559</td>
+      <td>1.000000</td>
+      <td>0.014753</td>
+      <td>0.077071</td>
+      <td>-0.003015</td>
+    </tr>
+    <tr>
+      <th>telephone</th>
+      <td>0.039209</td>
+      <td>-0.164718</td>
+      <td>0.018283</td>
+      <td>-0.116031</td>
+      <td>-0.276995</td>
+      <td>0.037452</td>
+      <td>-0.060518</td>
+      <td>-0.014413</td>
+      <td>0.057207</td>
+      <td>0.050996</td>
+      <td>...</td>
+      <td>-0.155051</td>
+      <td>-0.145259</td>
+      <td>-0.030704</td>
+      <td>0.003307</td>
+      <td>-0.065553</td>
+      <td>-0.383022</td>
+      <td>0.014753</td>
+      <td>1.000000</td>
+      <td>0.107401</td>
+      <td>0.036466</td>
+    </tr>
+    <tr>
+      <th>foreign_worker</th>
+      <td>-0.000205</td>
+      <td>-0.138196</td>
+      <td>-0.041784</td>
+      <td>0.035655</td>
+      <td>-0.050050</td>
+      <td>0.005318</td>
+      <td>-0.027232</td>
+      <td>-0.090024</td>
+      <td>0.009204</td>
+      <td>0.107639</td>
+      <td>...</td>
+      <td>-0.138772</td>
+      <td>-0.006151</td>
+      <td>-0.036734</td>
+      <td>0.005155</td>
+      <td>-0.009717</td>
+      <td>-0.100944</td>
+      <td>0.077071</td>
+      <td>0.107401</td>
+      <td>1.000000</td>
+      <td>-0.082079</td>
+    </tr>
+    <tr>
+      <th>default</th>
+      <td>0.197788</td>
+      <td>0.214927</td>
+      <td>0.232157</td>
+      <td>0.051311</td>
+      <td>0.154739</td>
+      <td>-0.033871</td>
+      <td>-0.116002</td>
+      <td>0.072404</td>
+      <td>0.042643</td>
+      <td>0.028441</td>
+      <td>...</td>
+      <td>0.090146</td>
+      <td>-0.091127</td>
+      <td>0.104885</td>
+      <td>0.123815</td>
+      <td>-0.045732</td>
+      <td>0.032735</td>
+      <td>-0.003015</td>
+      <td>0.036466</td>
+      <td>-0.082079</td>
+      <td>1.000000</td>
+    </tr>
+  </tbody>
+</table>
+<p>21 rows × 21 columns</p>
+</div>
+<p>使用<code>seaborn</code>绘图库绘制出相关型矩阵热度图，各变量间相关度并不高。我们可以“简单”地假设每对特征之间相互独立。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns</span><br><span class="line">sns.<span class="built_in">set</span>(font_scale=<span class="number">1.5</span>)<span class="comment">#字符大小设定</span></span><br><span class="line">plt.figure(figsize=(<span class="number">15</span>, <span class="number">15</span>))</span><br><span class="line">hm=sns.heatmap(corrmat, cbar=<span class="literal">True</span>, square=<span class="literal">True</span>, yticklabels=credit.columns, xticklabels=credit.columns,cmap=<span class="string">&quot;YlGnBu&quot;</span>)</span><br><span class="line">plt.show()  </span><br></pre></td></tr></table></figure>
+<p><img src="_posts%5Cimage%5C2021-5-4-Test%5C1620111690817.png" alt="1"><br>
+<img src="https://github.com/AshmoreLivy/AshmoreLivy.github.io/blob/main/_posts/image/2021-5-4-Test/1620113825390.png" alt="2"><br>
+<img src="https://github.com/AshmoreLivy/AshmoreLivy.github.io/_posts/image/2021-5-4-Test/1620113825390.png" alt="3"><br>
+<img src="Blogimage%5Coutput_10_0.png" alt="4"><br>
+<img src="https://github.com/AshmoreLivy/AshmoreLivy.github.io/main/Blogimage/output_10_0.png" alt="5"><br>
+<img src="https://ashmorelivy.github.io/BlogImage/output_10_0.png" alt="6"></p>
+<h2 id="模型选择">模型选择</h2>
+<p>先进行数据划分，需要将数据集分为<strong>训练集</strong>和<strong>测试集</strong>两部分。其中训练集用来构建朴素贝叶斯模型，测试集用来评估模型性能。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> model_selection</span><br><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> metrics</span><br><span class="line"></span><br><span class="line">y = credit[<span class="string">&#x27;default&#x27;</span>]</span><br><span class="line"><span class="comment">#del credit[&#x27;default&#x27;]</span></span><br><span class="line">X = credit.loc[:,<span class="string">&#x27;checking_balance&#x27;</span>:<span class="string">&#x27;foreign_worker&#x27;</span>]</span><br><span class="line"></span><br><span class="line">X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=<span class="number">0.3</span>, random_state=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>使用多项分布朴素贝叶斯模型，对训练数据集进行拟合。<code>predict_proba</code>输出对于X_test中的每行数据得到的对于两种预测结果的后验概率。因此被分类到后验概率较大的一类中。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.naive_bayes <span class="keyword">import</span> MultinomialNB</span><br><span class="line">clf_multi = MultinomialNB()</span><br><span class="line">clf_multi.fit(X_train,y_train)</span><br><span class="line">y_pred = clf_multi.predict(X_test)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(clf_multi.predict_proba(X_test))</span><br></pre></td></tr></table></figure>
+<p>[[7.08355206e-09 9.99999993e-01]<br>
+[4.05129188e-26 1.00000000e+00]<br>
+[9.79691264e-01 2.03087364e-02]<br>
+[9.82619335e-01 1.73806654e-02]<br>
+[4.94859998e-04 9.99505140e-01]<br>
+[9.99998409e-01 1.59110968e-06]<br>
+[8.85299264e-04 9.99114701e-01]<br>
+[9.99912434e-01 8.75657002e-05]<br>
+[9.99998245e-01 1.75510442e-06]<br>
+[9.87150312e-01 1.28496881e-02]<br>
+[9.99791955e-01 2.08045167e-04]<br>
+[7.17413046e-02 9.28258695e-01]<br>
+[1.42769922e-09 9.99999999e-01]<br>
+[9.99997304e-01 2.69595250e-06]<br>
+[5.61504493e-08 9.99999944e-01]<br>
+[9.99995078e-01 4.92187029e-06]<br>
+[8.54170929e-01 1.45829071e-01]<br>
+[9.99988770e-01 1.12298436e-05]<br>
+[9.99290453e-01 7.09546685e-04]<br>
+[5.59657372e-14 1.00000000e+00]<br>
+[9.99999766e-01 2.33633118e-07]<br>
+[9.99991893e-01 8.10675856e-06]<br>
+[9.27312798e-01 7.26872020e-02]<br>
+[9.99999972e-01 2.81816265e-08]<br>
+[9.99572578e-01 4.27421788e-04]<br>
+[9.99554836e-01 4.45164490e-04]<br>
+[7.54262725e-11 1.00000000e+00]<br>
+[9.99583183e-01 4.16817416e-04]<br>
+[9.99999892e-01 1.07557333e-07]<br>
+[2.03671867e-20 1.00000000e+00]<br>
+[9.30936726e-03 9.90690633e-01]<br>
+[4.22137734e-01 5.77862266e-01]<br>
+[3.07988013e-24 1.00000000e+00]<br>
+[9.99892134e-01 1.07866386e-04]<br>
+[9.98896579e-01 1.10342119e-03]<br>
+[1.27516939e-19 1.00000000e+00]<br>
+[3.21326686e-13 1.00000000e+00]<br>
+[9.99978102e-01 2.18978094e-05]<br>
+[9.99543666e-01 4.56334493e-04]<br>
+[9.75120153e-01 2.48798467e-02]<br>
+[9.99783249e-01 2.16751016e-04]<br>
+[7.53225441e-01 2.46774559e-01]<br>
+[1.00000000e+00 1.52390295e-10]<br>
+[9.23327518e-01 7.66724815e-02]<br>
+[9.99999996e-01 3.96981750e-09]<br>
+[9.99201910e-01 7.98090310e-04]<br>
+[7.42536445e-01 2.57463555e-01]<br>
+[9.99779916e-01 2.20084349e-04]<br>
+[9.97465543e-01 2.53445731e-03]<br>
+[9.99522680e-01 4.77319741e-04]<br>
+[9.99729186e-01 2.70814335e-04]<br>
+[9.99736721e-01 2.63278865e-04]<br>
+[5.64344942e-04 9.99435655e-01]<br>
+[4.00026914e-05 9.99959997e-01]<br>
+[9.53117144e-06 9.99990469e-01]<br>
+[8.69420434e-01 1.30579566e-01]<br>
+[9.99999997e-01 3.07306827e-09]<br>
+[1.57057604e-06 9.99998429e-01]<br>
+[9.99530449e-01 4.69551156e-04]<br>
+[4.44235731e-07 9.99999556e-01]<br>
+[9.99997479e-01 2.52079810e-06]<br>
+[9.99985346e-01 1.46542234e-05]<br>
+[3.09048564e-19 1.00000000e+00]<br>
+[7.49952563e-01 2.50047437e-01]<br>
+[9.98645456e-01 1.35454403e-03]<br>
+[5.61016777e-15 1.00000000e+00]<br>
+[9.99599379e-01 4.00620678e-04]<br>
+[1.00000000e+00 4.94688483e-10]<br>
+[9.93921444e-01 6.07855588e-03]<br>
+[2.55830477e-12 1.00000000e+00]<br>
+[9.98128166e-01 1.87183359e-03]<br>
+[9.40583266e-01 5.94167339e-02]<br>
+[9.99999664e-01 3.35665419e-07]<br>
+[9.99965174e-01 3.48257351e-05]<br>
+[7.96495634e-01 2.03504366e-01]<br>
+[2.30045586e-01 7.69954414e-01]<br>
+[3.43845989e-01 6.56154011e-01]<br>
+[9.99999399e-01 6.00685647e-07]<br>
+[9.99092122e-01 9.07878038e-04]<br>
+[9.99932474e-01 6.75263730e-05]<br>
+[3.18979875e-11 1.00000000e+00]<br>
+[9.79179080e-01 2.08209204e-02]<br>
+[1.00000000e+00 1.36448477e-11]<br>
+[9.99993882e-01 6.11801758e-06]<br>
+[9.65786631e-01 3.42133689e-02]<br>
+[9.76111368e-01 2.38886319e-02]<br>
+[9.99999941e-01 5.85847263e-08]<br>
+[9.99999819e-01 1.80804466e-07]<br>
+[9.99922821e-01 7.71793093e-05]<br>
+[9.99993133e-01 6.86748630e-06]<br>
+[9.99268149e-01 7.31851195e-04]<br>
+[5.22545593e-01 4.77454407e-01]<br>
+[1.97973112e-10 1.00000000e+00]<br>
+[9.88164915e-01 1.18350852e-02]<br>
+[9.99969019e-01 3.09809787e-05]<br>
+[1.20452595e-05 9.99987955e-01]<br>
+[9.95753421e-01 4.24657901e-03]<br>
+[1.50879629e-01 8.49120371e-01]<br>
+[3.69758990e-03 9.96302410e-01]<br>
+[1.32728342e-07 9.99999867e-01]<br>
+[9.67105940e-01 3.28940603e-02]<br>
+[1.00000000e+00 2.51889396e-10]<br>
+[4.20607438e-05 9.99957939e-01]<br>
+[9.99999995e-01 4.50441505e-09]<br>
+[9.98196982e-01 1.80301823e-03]<br>
+[2.60895496e-01 7.39104504e-01]<br>
+[9.99964355e-01 3.56449651e-05]<br>
+[3.40718013e-08 9.99999966e-01]<br>
+[6.68017653e-28 1.00000000e+00]<br>
+[9.99982158e-01 1.78417815e-05]<br>
+[9.99999723e-01 2.77421602e-07]<br>
+[9.99797624e-01 2.02375590e-04]<br>
+[8.59527536e-01 1.40472464e-01]<br>
+[1.81821662e-08 9.99999982e-01]<br>
+[1.89849679e-08 9.99999981e-01]<br>
+[1.90552896e-07 9.99999809e-01]<br>
+[9.99991452e-01 8.54833987e-06]<br>
+[9.99999999e-01 8.90283237e-10]<br>
+[9.86238948e-01 1.37610516e-02]<br>
+[9.19056892e-01 8.09431077e-02]<br>
+[5.20189940e-15 1.00000000e+00]<br>
+[1.07176072e-06 9.99998928e-01]<br>
+[1.96524734e-08 9.99999980e-01]<br>
+[9.22312119e-02 9.07768788e-01]<br>
+[9.99999561e-01 4.38736439e-07]<br>
+[3.14262425e-02 9.68573758e-01]<br>
+[9.99656508e-01 3.43491997e-04]<br>
+[4.49764172e-01 5.50235828e-01]<br>
+[9.99551027e-01 4.48973406e-04]<br>
+[4.67593429e-01 5.32406571e-01]<br>
+[9.99995983e-01 4.01738206e-06]<br>
+[9.79193431e-01 2.08065690e-02]<br>
+[4.33184050e-06 9.99995668e-01]<br>
+[9.99993077e-01 6.92318920e-06]<br>
+[9.99999812e-01 1.88485229e-07]<br>
+[3.02205341e-06 9.99996978e-01]<br>
+[9.07568653e-01 9.24313468e-02]<br>
+[1.22717545e-01 8.77282455e-01]<br>
+[9.99982544e-01 1.74558917e-05]<br>
+[9.99999996e-01 3.78412084e-09]<br>
+[5.61424124e-05 9.99943858e-01]<br>
+[9.82620365e-01 1.73796352e-02]<br>
+[1.94171276e-05 9.99980583e-01]<br>
+[9.83179110e-01 1.68208896e-02]<br>
+[9.99971324e-01 2.86761851e-05]<br>
+[1.86978428e-09 9.99999998e-01]<br>
+[7.06519691e-01 2.93480309e-01]<br>
+[8.80296829e-01 1.19703171e-01]<br>
+[9.87132431e-01 1.28675686e-02]<br>
+[1.65934444e-08 9.99999983e-01]<br>
+[9.99999995e-01 5.22521465e-09]<br>
+[9.97170829e-01 2.82917130e-03]<br>
+[9.99995505e-01 4.49460473e-06]<br>
+[9.97536742e-01 2.46325758e-03]<br>
+[1.17003871e-05 9.99988300e-01]<br>
+[2.75965897e-01 7.24034103e-01]<br>
+[4.72459215e-04 9.99527541e-01]<br>
+[9.99603650e-01 3.96350493e-04]<br>
+[9.99993266e-01 6.73357777e-06]<br>
+[9.95930147e-01 4.06985314e-03]<br>
+[9.98430108e-01 1.56989215e-03]<br>
+[1.02950719e-14 1.00000000e+00]<br>
+[9.95504721e-01 4.49527932e-03]<br>
+[9.88755899e-01 1.12441013e-02]<br>
+[5.76970096e-29 1.00000000e+00]<br>
+[9.99994030e-01 5.96964214e-06]<br>
+[8.04594587e-01 1.95405413e-01]<br>
+[2.73498848e-02 9.72650115e-01]<br>
+[9.98062495e-01 1.93750460e-03]<br>
+[9.99976044e-01 2.39560643e-05]<br>
+[5.51307112e-05 9.99944869e-01]<br>
+[9.99999921e-01 7.91559779e-08]<br>
+[9.99999870e-01 1.30319104e-07]<br>
+[9.99999957e-01 4.27677987e-08]<br>
+[8.68652943e-01 1.31347057e-01]<br>
+[9.99878314e-01 1.21685501e-04]<br>
+[9.97220154e-01 2.77984582e-03]<br>
+[9.99998005e-01 1.99475475e-06]<br>
+[1.12048195e-01 8.87951805e-01]<br>
+[9.98556552e-01 1.44344822e-03]<br>
+[4.74835052e-01 5.25164948e-01]<br>
+[8.85006321e-01 1.14993679e-01]<br>
+[9.99791624e-01 2.08376168e-04]<br>
+[7.14924653e-14 1.00000000e+00]<br>
+[9.11613644e-01 8.83863562e-02]<br>
+[9.99168495e-01 8.31504595e-04]<br>
+[9.99999999e-01 1.40036211e-09]<br>
+[8.95294053e-01 1.04705947e-01]<br>
+[9.94302903e-01 5.69709688e-03]<br>
+[2.58934387e-12 1.00000000e+00]<br>
+[9.99968031e-01 3.19694335e-05]<br>
+[1.00483240e-01 8.99516760e-01]<br>
+[9.99883869e-01 1.16131177e-04]<br>
+[9.99998999e-01 1.00050972e-06]<br>
+[9.41217448e-01 5.87825518e-02]<br>
+[9.99999144e-01 8.56187393e-07]<br>
+[3.04245716e-02 9.69575428e-01]<br>
+[9.99950646e-01 4.93539798e-05]<br>
+[9.94764447e-01 5.23555342e-03]<br>
+[9.99725874e-01 2.74126170e-04]<br>
+[9.99675935e-01 3.24064676e-04]<br>
+[9.99988898e-01 1.11021676e-05]<br>
+[4.96753226e-01 5.03246774e-01]<br>
+[9.92510677e-01 7.48932261e-03]<br>
+[3.71443861e-02 9.62855614e-01]<br>
+[9.99880010e-01 1.19989622e-04]<br>
+[5.43341069e-01 4.56658931e-01]<br>
+[2.23740846e-02 9.77625915e-01]<br>
+[2.16734441e-07 9.99999783e-01]<br>
+[8.28053468e-03 9.91719465e-01]<br>
+[6.42953055e-04 9.99357047e-01]<br>
+[2.31551620e-05 9.99976845e-01]<br>
+[9.99999954e-01 4.59849329e-08]<br>
+[9.99999995e-01 4.68993640e-09]<br>
+[9.99999996e-01 4.44118198e-09]<br>
+[1.95727744e-13 1.00000000e+00]<br>
+[9.97044910e-01 2.95509029e-03]<br>
+[1.00000000e+00 4.70059652e-11]<br>
+[4.91843429e-12 1.00000000e+00]<br>
+[9.99151819e-01 8.48180737e-04]<br>
+[9.99990247e-01 9.75330022e-06]<br>
+[9.99900851e-01 9.91486749e-05]<br>
+[5.19925707e-01 4.80074293e-01]<br>
+[9.98595280e-01 1.40472032e-03]<br>
+[9.99998228e-01 1.77218388e-06]<br>
+[9.70866147e-01 2.91338528e-02]<br>
+[7.48246743e-07 9.99999252e-01]<br>
+[9.99973845e-01 2.61547528e-05]<br>
+[1.20010195e-08 9.99999988e-01]<br>
+[9.99989583e-01 1.04166523e-05]<br>
+[3.28748185e-08 9.99999967e-01]<br>
+[9.99999966e-01 3.38654087e-08]<br>
+[5.05940992e-03 9.94940590e-01]<br>
+[9.99980420e-01 1.95803984e-05]<br>
+[9.99748556e-01 2.51444300e-04]<br>
+[9.99882532e-01 1.17467621e-04]<br>
+[9.98448749e-01 1.55125101e-03]<br>
+[9.99999884e-01 1.16129977e-07]<br>
+[1.53291657e-03 9.98467083e-01]<br>
+[9.76220766e-01 2.37792338e-02]<br>
+[8.44717999e-03 9.91552820e-01]<br>
+[9.99886188e-01 1.13812358e-04]<br>
+[3.90368809e-03 9.96096312e-01]<br>
+[9.99999858e-01 1.42492789e-07]<br>
+[9.99999698e-01 3.01588597e-07]<br>
+[9.30141719e-01 6.98582809e-02]<br>
+[9.99985365e-01 1.46346301e-05]<br>
+[9.99920174e-01 7.98259279e-05]<br>
+[9.99996587e-01 3.41321375e-06]<br>
+[9.96987845e-01 3.01215503e-03]<br>
+[9.99483133e-01 5.16866706e-04]<br>
+[9.91463705e-01 8.53629509e-03]<br>
+[3.15926974e-10 1.00000000e+00]<br>
+[2.14783690e-03 9.97852163e-01]<br>
+[7.50823010e-01 2.49176990e-01]<br>
+[9.99999137e-01 8.62819165e-07]<br>
+[6.99934104e-03 9.93000659e-01]<br>
+[5.46894966e-15 1.00000000e+00]<br>
+[2.13290238e-05 9.99978671e-01]<br>
+[9.99793159e-01 2.06840609e-04]<br>
+[8.74970112e-01 1.25029888e-01]<br>
+[9.99867579e-01 1.32420724e-04]<br>
+[1.00000000e+00 2.04284020e-10]<br>
+[9.99997195e-01 2.80502361e-06]<br>
+[9.99999157e-01 8.43225198e-07]<br>
+[9.99999948e-01 5.17726713e-08]<br>
+[2.40872121e-02 9.75912788e-01]<br>
+[9.47413892e-01 5.25861076e-02]<br>
+[6.54889629e-09 9.99999993e-01]<br>
+[3.40621192e-06 9.99996594e-01]<br>
+[4.30630753e-01 5.69369247e-01]<br>
+[9.99993574e-01 6.42617921e-06]<br>
+[9.98944910e-01 1.05508978e-03]<br>
+[9.16489524e-01 8.35104757e-02]<br>
+[9.99418072e-01 5.81928176e-04]<br>
+[5.40842574e-04 9.99459157e-01]<br>
+[9.99998061e-01 1.93903762e-06]<br>
+[3.47609654e-02 9.65239035e-01]<br>
+[9.99812899e-01 1.87101404e-04]<br>
+[9.99746283e-01 2.53716520e-04]<br>
+[2.81628794e-04 9.99718371e-01]<br>
+[9.99828951e-01 1.71048982e-04]<br>
+[9.99969589e-01 3.04105630e-05]<br>
+[8.55977708e-02 9.14402229e-01]<br>
+[3.44376719e-11 1.00000000e+00]<br>
+[9.99999699e-01 3.01499794e-07]<br>
+[9.99998707e-01 1.29347853e-06]<br>
+[9.99958928e-01 4.10716828e-05]<br>
+[9.93314781e-01 6.68521864e-03]<br>
+[3.21042931e-09 9.99999997e-01]<br>
+[9.86472042e-01 1.35279576e-02]<br>
+[9.99904973e-01 9.50269676e-05]<br>
+[2.83671375e-04 9.99716329e-01]<br>
+[9.98868733e-01 1.13126730e-03]<br>
+[2.44074089e-01 7.55925911e-01]<br>
+[4.94339246e-04 9.99505661e-01]<br>
+[3.39748678e-05 9.99966025e-01]<br>
+[9.99999809e-01 1.91303777e-07]<br>
+[1.16822919e-03 9.98831771e-01]<br>
+[9.99997637e-01 2.36342666e-06]]</p>
+<h2 id="模型评估">模型评估</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;多项分布贝叶斯分类结果如下：&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;验证集评分:&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(clf_multi.score(X_test,y_test))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;准确率：&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(metrics.precision_score(y_test,y_pred))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;混淆矩阵:&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(metrics.confusion_matrix(y_true=y_test,y_pred=y_pred,labels=<span class="built_in">list</span>(<span class="built_in">set</span>(y))))</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(metrics.classification_report(y_test,y_pred))</span><br></pre></td></tr></table></figure>
+<p>多项分布贝叶斯分类结果如下：<br>
+验证集评分:<br>
+0.6233333333333333<br>
+准确率：<br>
+0.7537688442211056<br>
+混淆矩阵:<br>
+[[150  64]<br>
+[ 49  37]]<br>
+precision    recall  f1-score   support</p>
+<pre><code>       1       0.75      0.70      0.73       214
+       2       0.37      0.43      0.40        86
+
+accuracy                           0.62       300
+</code></pre>
+<p>macro avg       0.56      0.57      0.56       300<br>
+weighted avg       0.64      0.62      0.63       300<br>
+模型的准确率为75.38%，对模型验证集评分为62.33%，对于违规结果，召回率只有43%。因此使用多项分布的朴素贝叶斯，对于结果的预测还不够精准。</p>
+<h2 id="模型调优">模型调优</h2>
+<p>下面考虑使用高斯朴素贝叶斯模型，对训练数据集进行拟合。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.naive_bayes <span class="keyword">import</span> GaussianNB</span><br><span class="line"></span><br><span class="line">clf = GaussianNB()</span><br><span class="line">clf.fit(X_train,y_train)</span><br><span class="line">y_pred = clf.predict(X_test)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;高斯贝叶斯分类结果如下：&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;验证集评分:&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(clf.score(X_test,y_test))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;准确率：&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(metrics.precision_score(y_test,y_pred))</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;混淆矩阵:&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(metrics.confusion_matrix(y_true=y_test,y_pred=y_pred,labels=<span class="built_in">list</span>(<span class="built_in">set</span>(y))))</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(metrics.classification_report(y_test,y_pred))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>高斯贝叶斯分类结果如下：<br>
+验证集评分:<br>
+0.7233333333333334<br>
+准确率：<br>
+0.8046511627906977<br>
+混淆矩阵:<br>
+[[173  41]<br>
+[ 42  44]]<br>
+precision    recall  f1-score   support</p>
+<pre><code>       1       0.80      0.81      0.81       214
+       2       0.52      0.51      0.51        86
+
+accuracy                           0.72       300
+</code></pre>
+<p>macro avg       0.66      0.66      0.66       300<br>
+weighted avg       0.72      0.72      0.72       300<br>
+模型准确率提高到80.47%，对模型验证集评分提高到了72.33%，同时对于违规结果的召回率提高到了51%。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://ashmorelevi.github.io">Levi Liang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://ashmorelevi.github.io/2021/05/04/%E4%BD%BF%E7%94%A8%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E8%BF%9B%E8%A1%8C%E4%B8%AA%E4%BA%BA%E4%BF%A1%E7%94%A8%E9%A3%8E%E9%99%A9%E8%AF%84%E4%BC%B0/">https://ashmorelevi.github.io/2021/05/04/%E4%BD%BF%E7%94%A8%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E8%BF%9B%E8%A1%8C%E4%B8%AA%E4%BA%BA%E4%BF%A1%E7%94%A8%E9%A3%8E%E9%99%A9%E8%AF%84%E4%BC%B0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://ashmorelevi.github.io" target="_blank">Levi's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a><a class="post-meta__tags" href="/tags/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/">朴素贝叶斯</a></div><div class="post_share"><div class="social-share" data-image="/img/Taylor/midnights_10.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2021/05/16/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E5%AF%BC%E8%AE%BA%E5%A4%8D%E4%B9%A0%E4%B8%8E%E8%80%83%E8%AF%95%E6%80%BB%E7%BB%93/"><img class="prev-cover" src="/img/Taylor/midnights_1.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">数据科学导论复习与考试总结</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/Avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Levi Liang</div><div class="author-info__description">He was sunshine, I was midnight rain.</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">8</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/AshmoreLevi" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:1069696543@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.instagram.com/ashmore0503/" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a><a class="social-icon" href="https://weibo.com/u/1939178433" target="_blank" title="Weibo"><i class="fa-brands fa-weibo"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This site has been updated to the Butterfly Theme. Now support the gallery, the music and the comment function!</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">朴素贝叶斯</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%AB%98%E6%96%AF%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF"><span class="toc-number">1.1.</span> <span class="toc-text">高斯朴素贝叶斯</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E9%A1%B9%E5%88%86%E5%B8%83%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF"><span class="toc-number">1.2.</span> <span class="toc-text">多项分布朴素贝叶斯</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%AF%E5%8A%AA%E5%88%A9%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF"><span class="toc-number">1.3.</span> <span class="toc-text">伯努利朴素贝叶斯</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">使用朴素贝叶斯进行个人信用风险评估</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%BA%90%E4%B8%8E%E6%9F%A5%E7%9C%8B%E6%95%B0%E6%8D%AE"><span class="toc-number">2.1.</span> <span class="toc-text">数据源与查看数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86"><span class="toc-number">2.2.</span> <span class="toc-text">数据预处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%89%B9%E5%BE%81%E5%88%86%E6%9E%90"><span class="toc-number">2.3.</span> <span class="toc-text">特征分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E9%80%89%E6%8B%A9"><span class="toc-number">2.4.</span> <span class="toc-text">模型选择</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BC%B0"><span class="toc-number">2.5.</span> <span class="toc-text">模型评估</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E8%B0%83%E4%BC%98"><span class="toc-number">2.6.</span> <span class="toc-text">模型调优</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/11/23/Hexo-Butterfly-Theme%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" title="Hexo-Butterfly-Theme博客搭建"><img src="/img/Taylor/midnights_10.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hexo-Butterfly-Theme博客搭建"/></a><div class="content"><a class="title" href="/2022/11/23/Hexo-Butterfly-Theme%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" title="Hexo-Butterfly-Theme博客搭建">Hexo-Butterfly-Theme博客搭建</a><time datetime="2022-11-23T11:33:41.000Z" title="发表于 2022-11-23 19:33:41">2022-11-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/10/16/KDD-22-Cam-Traj-Rec%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB%E4%B8%8E%E5%A4%8D%E7%8E%B0/" title="KDD'22 Cam_Traj_Rec文献阅读与复现"><img src="/img/Taylor/midnights_3.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="KDD'22 Cam_Traj_Rec文献阅读与复现"/></a><div class="content"><a class="title" href="/2022/10/16/KDD-22-Cam-Traj-Rec%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB%E4%B8%8E%E5%A4%8D%E7%8E%B0/" title="KDD'22 Cam_Traj_Rec文献阅读与复现">KDD'22 Cam_Traj_Rec文献阅读与复现</a><time datetime="2022-10-16T12:12:27.000Z" title="发表于 2022-10-16 20:12:27">2022-10-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/09/27/Markdown%E8%AF%AD%E6%B3%95%E4%B8%8EKatex%E6%95%B0%E5%AD%A6%E5%85%AC%E5%BC%8F/" title="Markdown语法与Katex数学公式"><img src="/img/Taylor/midnights_7.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Markdown语法与Katex数学公式"/></a><div class="content"><a class="title" href="/2022/09/27/Markdown%E8%AF%AD%E6%B3%95%E4%B8%8EKatex%E6%95%B0%E5%AD%A6%E5%85%AC%E5%BC%8F/" title="Markdown语法与Katex数学公式">Markdown语法与Katex数学公式</a><time datetime="2022-09-27T03:18:37.000Z" title="发表于 2022-09-27 11:18:37">2022-09-27</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/img/footer_bg.jpeg')"><div id="footer-wrap"><div class="copyright">&copy;2021 - 2022 By Levi Liang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">Hi, welcome to my <a href="https://ashmorelevi.github.io">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script><script>(() => {
+  const $mermaidWrap = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaidWrap.length) {
+    window.runMermaid = () => {
+      window.loadMermaid = true
+      const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+      Array.from($mermaidWrap).forEach((item, index) => {
+        const mermaidSrc = item.firstElementChild
+        const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+        const mermaidID = 'mermaid-' + index
+        const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+        mermaid.mermaidAPI.render(mermaidID, mermaidDefinition, (svgCode) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svgCode)
+        })
+      })
+    }
+
+    const loadMermaid = () => {
+      window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+    }
+
+    window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+  }
+})()</script><script>function loadWaline () {
+  function insertCSS () {
+    const link = document.createElement("link")
+    link.rel = "stylesheet"
+    link.href = "https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css"
+    document.head.appendChild(link)
+  }
+
+  function initWaline () {
+    const waline = Waline.init(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'https://waline-bdc98jpi3-ashmorelevi.vercel.app',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, null))
+  }
+
+  if (typeof Waline === 'function') initWaline()
+  else {
+    insertCSS()
+    getScript('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js').then(initWaline)
+  }
+}
+
+if ('Waline' === 'Waline' || !true) {
+  if (true) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+  else setTimeout(loadWaline, 0)
+} else {
+  function loadOtherComment () {
+    loadWaline()
+  }
+}</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
